@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RevoWords</title>
+    <style>
+      /* CSS to center the entered string */
+      .entered-string {
+        width:200px;
+        height: 50px ;
+        margin: auto;
+        position: fixed;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        text-transform: lowercase;
+        letter-spacing: 1px;
+        padding: 5px;
+        background-color: #f5f5f5;
+        border: 1px solid #333;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      /* CSS to center the buttons */
+      .button-container {
+        position: fixed;
+        bottom: 20%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: flex;
+        justify-content: center;
+      }
+
+      label {
+        display: inline-block;
+        position: fixed;
+        bottom: 0;
+        margin-bottom: 10px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 5px;
+        background-color: #f5f5f5;
+        border: 1px solid #333;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      button {
+      font-size: 2rem;
+      padding: 1rem 2rem;
+      border: none;
+      background-color: #48a148;
+      color: white;
+      border-radius: 4px;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease-in-out;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+      }
+
+      button:active {
+      transform: translateY(0px);
+      box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+      }
+      button + button {
+      margin-left: 30px;
+      }
+
+      /* CSS to center the clicked letters container */
+      .clicked-letters-container {
+        width: 200px;
+        height: 50px ;
+        margin: auto;
+        position: fixed;
+        top: 45%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        font-weight: bold;
+        color: #333;
+        background-color: rgb(209, 214, 211);
+        text-transform: lowercase;
+        letter-spacing: 1px;
+        padding: 5px;
+        border: 1px solid #333;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"] {
+        position: fixed;
+        bottom: 10%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        font-size: 1.5rem;
+        padding: 5px;
+        border: none;
+        background-color: #f5f5f5;
+        border: 1px solid #333;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type="text"] {
+        width: 25%;
+        padding: 10px;
+        border: none;
+        border-bottom: 1px solid #ccc;
+        font-size: 16px;
+        float: center;
+      }
+
+      button#submitBtn {
+        font-size: 1.5rem;
+        padding: 5px;
+        border: none;
+        background-color: #48a148;
+        color: white;
+        border-radius: 4px;
+        box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        transition: all 0.2s ease-in-out;
+        position: absolute;
+        bottom: 8.65%;
+        right: 10%;
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+
+      button#submitBtn:hover {
+        transform: translateY(-2px);
+        box-shadow: 3px 3px 6px #36d08bb8;
+      }
+
+      button#submitBtn:active {
+        transform: translateY(0px);
+        box-shadow: 1px 1px 2px #3a932d33;
+      }
+      
+      body {
+        background-color: rgba(178, 176, 178, 0.5);
+      }
+
+    </style>
+  </head>
+  <body>
+    <div style="text-align:center"><h3>RevoWords</h3></div>
+    <form>
+    <input type="text" id="userString" name="userString" placeholder="Type here" maxlength="8">
+    </form>
+
+    <button id="submitBtn">push</button>
+
+    <!-- Add a new element to contain the entered string -->
+    <div id="enteredStringContainer" class="entered-string"></div>
+
+    <!--Add a timer -->
+    <button
+      id="timer">30</span>
+    </button>
+
+    <!--Add a timer -->
+    <button
+      id="odds">1</span>
+    </button>
+
+    <!-- Add a new element to contain the clicked letters' string -->
+    <div id="clickedLettersContainer" class="clicked-letters-container"></div>
+    
+    <!-- Add a game id -->
+    <h5 id="game-id"></h5>
+
+    <script>
+      const gameData = {
+        userString: '',
+        clickedLettersContainer: '',
+        odds: ''
+      };
+
+      function saveGameData() {
+        const userString = document.getElementById('userString').value;
+        const clickedLettersContainer = document.getElementById("clickedLettersContainer").innerText;
+        const odds = document.getElementById("odds").innerHTML;
+
+        gameData.userString = userString;
+        gameData.clickedLettersContainer = clickedLettersContainer;
+        gameData.odds = odds;
+
+        console.log(JSON.stringify(gameData));
+      }
+
+      function displayGameId() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1;
+        const date = now.getDate();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        const userString = document.getElementById('userString').value;
+        
+        const gameId = year.toString() + padNumber(month) + padNumber(date) + padNumber(hours) + padNumber(minutes) + padNumber(seconds) + userString;
+
+        document.getElementById('game-id').innerHTML = gameId;
+
+      }
+
+      function padNumber(num) {
+        return num.toString().padStart(2, "0");
+      }
+
+
+      function shuffle1Array(array1) {
+        let leftIndex = array1.length;
+        let temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle
+        while (0 !== leftIndex) {
+
+          // Pick a remaining element
+          randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (Math.pow(2, 32) / leftIndex));
+
+          leftIndex -= 1;
+
+          // And swap it with the current element
+          temporaryValue = array1[leftIndex];
+          array1[leftIndex] = array1[randomIndex];
+          array1[randomIndex] = temporaryValue;
+        }
+
+        return array1;
+      }
+
+      function shuffle2Array(array2) {
+        let middleIndex = array2.length;
+        let temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle
+        while (0 !== middleIndex) {
+
+          // Pick a remaining element
+          randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (Math.pow(2, 32) / middleIndex));
+
+          middleIndex -= 1;
+
+          // And swap it with the current element
+          temporaryValue = array2[middleIndex];
+          array2[middleIndex] = array2[randomIndex];
+          array2[randomIndex] = temporaryValue;
+        }
+
+        return array2;
+      }
+
+      function shuffle3Array(array3) {
+        let rightIndex = array3.length;
+        let temporaryValue, randomIndex;
+
+        // While there remain elements to shuffle
+        while (0 !== rightIndex) {
+
+          // Pick a remaining element
+          randomIndex = Math.floor(crypto.getRandomValues(new Uint32Array(1))[0] / (Math.pow(2, 32) / rightIndex));
+
+          rightIndex -= 1;
+
+          // And swap it with the current element
+          temporaryValue = array3[rightIndex];
+          array3[rightIndex] = array3[randomIndex];
+          array3[randomIndex] = temporaryValue;
+        }
+
+        return array3;
+      }
+
+
+      let letters1 = "abcdefghijklmnopqrstuvwxyz";
+      letters1 = letters1.split('');
+      shuffle1Array(letters1);
+
+      let letters2 = "abcdefghijklmnopqrstuvwxyz";
+      letters2 = letters2.split('');
+      shuffle2Array(letters2);
+
+
+      let letters3 = "abcdefghijklmnopqrstuvwxyz";
+      letters3 = letters3.split('');
+      shuffle3Array(letters3);
+      
+
+
+      let index1 = 0;
+      let index2 = 0;
+      let index3 = 0;
+      let center = window.innerWidth / 2;
+      let clickedLetterElements = [];
+      let clickedLetters = [];
+      let container = document.getElementById("clickedLettersContainer");
+      let timerStarted = false;
+      let oddsStarted = false;
+      let timeLeft = 30;
+      let oddsInnit = 1;
+      let timerId;
+      let oddsId;
+      let messageContainer = document.getElementById("messageContainer");
+      let numberOfLetters; // declare numberOfLetters outside of the event listener
+
+
+      function changeButtonColors() {
+        const buttons = document.querySelectorAll('button');
+        const colors = ['#6A5ACD', '#1E90FF', '#FF7F50', '#000080', '#008000', '#008080', '#EE82EE'];
+        let colorIndex = buttons[0].getAttribute('data-color-index');
+        if (colorIndex === null) {
+          // if no data-color-index is set, start at the beginning of the colors array
+          colorIndex = 0;
+        } else {
+          colorIndex = parseInt(colorIndex);
+          colorIndex++;
+          if (colorIndex === colors.length) {
+            // reset to the beginning of the colors array
+            colorIndex = 0;
+          }
+        }
+        const root = document.documentElement;
+        root.style.setProperty('--button-color', colors[colorIndex]);
+        buttons.forEach((button) => {
+          button.style.backgroundColor = 'var(--button-color)';
+          button.style.color = 'white';
+          button.setAttribute('data-color-index', colorIndex);
+        });
+      }
+
+
+
+      // Get references to the input field and submit button
+      const userStringInput = document.getElementById('userString');
+        const submitBtn = document.getElementById('submitBtn');
+
+      function clearInputAndContainers() {
+        document.getElementById("userString").value = "";
+        document.getElementById("clickedLettersContainer").innerText = "";
+        document.getElementById("enteredStringContainer").innerText = "";
+        document.getElementById("timer").innerText = "30";
+        timeLeft = 30; // reset the time left
+        clearInterval(timerId); // clear the interval to stop the timer
+        timerStarted = false; // reset the timer started flag
+        submitBtn.disabled = false; // re-enable the submit button
+        oddsStarted = false;
+        oddsInnit = 1;
+        clearInterval(oddsId);
+        
+        clickedCount = 0; // reset the clicked count
+        const buttons = document.querySelectorAll("#clickedLettersContainer button");
+        buttons.forEach((button) => {
+          button.disabled = false;
+        });
+
+        // call the function to change button colors
+        changeButtonColors();
+
+      }
+
+      submitBtn.addEventListener('click', () => {
+
+        let userString = document.getElementById("userString").value;
+        if (userString) {
+          document.getElementById("enteredStringContainer").innerHTML = userString;
+          numberOfLetters = document.getElementById("userString").value.length;
+          startTimer();
+          timerStarted = true;
+          submitBtn.disabled = true;
+          startOdds();
+          oddsStarted = true;
+          document.getElementById('game-id').innerText = "";
+        }
+      });
+
+      userStringInput.addEventListener('keydown', (event) => {
+        if (event.keyCode === 13) {
+          event.preventDefault();
+        }
+      });
+
+
+      
+      const buttons = container.querySelectorAll('button');
+
+      // Create a container element for the buttons
+      container = document.createElement("div");
+      container.classList.add("button-container");
+      document.querySelector("body").appendChild(container);
+
+
+      // Add a timer that counts down from n seconds to 0
+      function startTimer() {
+        if (!timerStarted) {
+          timerStarted = true;
+          timerId = setInterval(() => {
+            timeLeft--;
+            if (timeLeft >= 0) {
+              document.getElementById("timer").innerHTML = timeLeft;
+            }
+            if (timeLeft === 0) {
+              clearInterval(timerId);
+              endGame();
+            }
+          }, 1000);
+        }
+      }
+
+      
+      // Add an odds function that increments dynamically from 0 to n
+      function startOdds (){
+        if (!oddsStarted) {
+          oddsStarted = true;
+          const e = Math.E;
+          const increment = numberOfLetters / timeLeft ; // Calculate the increment value
+          oddsId = setInterval(() => {
+            oddsInnit += increment; // Add the increment value to the odds value
+            if (oddsInnit <= numberOfLetters * e) {
+              document.getElementById("odds").innerHTML = oddsInnit.toFixed(2);
+            }
+            if (oddsInnit === numberOfLetters) {
+              clearInterval(oddsId); // Stop the interval when odds value exceeds the number of letters
+            }
+          }, 500);
+        }
+      }
+
+      
+      let clickedCount = 0; // add a counter variable to keep track of the number of clicks
+      
+      // Create first button element with the same text as the current letter being displayed in the animation
+      for (let i = 0; i < 1; i++) {
+        const leftButton = document.createElement("button");
+        let leftIndex = index1; // capture the current value of index in a new variable
+        leftButton.innerText = letters1[leftIndex];
+        container.appendChild(leftButton);
+
+        // Increment the index so each button starts with a different letter
+        index1 = (index1 + 1) % letters1.length;
+
+        // Add an event listener to each button to print its letter to container clickedLetterContainer
+        leftButton.addEventListener('click', function(event) {
+
+          if (clickedCount >= 9.5) { // check if maximum allowed clicks have been reached
+            for (let i = 0; i < buttons.length; i++) {
+              buttons[i].disabled = true; // disable all the buttons
+            }
+            return; // exit the function to prevent further clicks
+          }
+          pauseGame();
+
+          clickedCount++; // increment the counter variable
+          const leftIndex = Array.from(container.children).indexOf(event.target);
+
+          
+      });
+
+      // Create second button element with the same text as the current letter being displayed in the animation
+      for (let i = 0; i < 1; i++) {
+        const middleButton = document.createElement("button");
+        let middleIndex = index2; // capture the current value of index in a new variable
+        middleButton.innerText = letters2[middleIndex];
+        container.appendChild(middleButton);
+
+        // Increment the index so each button starts with a different letter
+        index2 = (index2 + 1) % letters2.length;
+
+        // Add an event listener to each button to print its letter to container clickedLetterContainer
+        middleButton.addEventListener('click', function(event) {
+
+          if (clickedCount >= 9.5) { // check if maximum allowed clicks have been reached
+            for (let i = 0; i < buttons.length; i++) {
+              buttons[i].disabled = true; // disable all the buttons
+            }
+            return; // exit the function to prevent further clicks
+          }
+          pauseGame();
+
+          clickedCount++; // increment the counter variable
+          const middleIndex = Array.from(container.children).indexOf(event.target);
+
+          
+      });
+
+      // Create third button element with the same text as the current letter being displayed in the animation
+      for (let i = 0; i < 1; i++) {
+        const rightButton = document.createElement("button");
+        let rightIndex = index3; // capture the current value of index in a new variable
+        rightButton.innerText = letters3[rightIndex];
+        container.appendChild(rightButton);
+
+        // Increment the index so each button starts with a different letter
+        index3 = (index3 + 1) % letters3.length;
+
+        // Add an event listener to each button to print its letter to container clickedLetterContainer
+        rightButton.addEventListener('click', function(event) {
+
+          if (clickedCount >= 9.5) { // check if maximum allowed clicks have been reached
+            for (let i = 0; i < buttons.length; i++) {
+              buttons[i].disabled = true; // disable all the buttons
+            }
+            return; // exit the function to prevent further clicks
+          }
+          pauseGame();
+
+          clickedCount++; // increment the counter variable
+          const rightIndex = Array.from(container.children).indexOf(event.target);
+
+          
+      });
+
+
+      setInterval(() => {
+        // Get all the buttons inside the container
+        let buttons = container.querySelectorAll("button");
+
+        // Loop through each button and update its text to match the current letter
+        buttons.forEach((button) => {
+          // Get a random index for each letters array
+          let randIndex1 = Math.floor(Math.random() * letters1.length);
+          let randIndex2 = Math.floor(Math.random() * letters2.length);
+          let randIndex3 = Math.floor(Math.random() * letters3.length);
+          
+          // Set the button text using the random index
+          leftButton.innerText = letters1[randIndex1];
+          middleButton.innerText = letters2[randIndex2];
+          rightButton.innerText = letters3[randIndex3];
+        });
+
+      },1000);
+
+      function endGame() {
+        // Disable all the buttons
+        for (let i = 0; i < buttons.length; i++) {
+          buttons[i].disabled = true;
+        }
+        
+        // Display a message telling the user whether they won or lost
+        const clickedLettersContainer = document.getElementById("clickedLettersContainer");
+        if (clickedLettersContainer.innerText === userStringInput.value.toLowerCase()) {
+          alert(`You won! You matched the string "${clickedLettersContainer.innerText}" in ${30 - timeLeft} seconds!`);
+          saveGameData();
+          displayGameId(); // call the displayGameId function
+        } else {
+          alert(`You lost! The string was "${enteredStringContainer.innerText}"`);
+          saveGameData();
+          displayGameId(); // call the displayGameId function
+        }
+        clearInputAndContainers();
+        
+      }
+
+      function pauseGame() {
+        // Check if user has submitted a string
+        if (!enteredStringContainer.innerText) {
+          // Disable all the buttons
+          for (let i = 0; i < buttons.length; i++) {
+            buttons[i].disabled = true;
+          }
+          
+          
+          // Display a message asking user to input and submit a string first
+          alert('Please enter and push a 3 character string before clicking any letters');
+
+          const clickedLetters = document.getElementById("clickedLetters");
+
+          clickedCount = 0;
+        
+        
+        }
+        else{
+          // Print the clicked letter to the container callled clickedLetterContainer
+
+          const clickedLetterContainer = document.getElementById("clickedLettersContainer");
+            const clickedLetter = event.target.innerText;
+            
+            // Push the clicked letter into the clickedLetters array
+            clickedLetterContainer.innerHTML += clickedLetter;
+            
+        
+            if (clickedLettersContainer.innerText === enteredStringContainer.innerText) {
+              clearInterval(timerId);
+                // Call a function to end the game here
+              endGame();
+            }
+         
+            // Add the current letter to an array of typed letters
+            const clickedLetters = clickedLetterElements.map(clickedLetters => clickedLetters.innerText);
+
+        }
+      }
+
+    }}}</script>
+  </body>
+</html>
